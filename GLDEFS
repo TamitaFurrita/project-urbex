@@ -1,0 +1,9 @@
+HardwareShader sprite WARTA0 { shader "Shaders/static.fp" }
+HardwareShader sprite WARTB0 { shader "Shaders/static.fp" }
+HardwareShader sprite WARTC0 { shader "Shaders/static.fp" }
+HardwareShader sprite WARTD0 { shader "Shaders/static.fp" }
+HardwareShader sprite WARTE0 { shader "Shaders/static.fp" }
+HardwareShader sprite WARTF0 { shader "Shaders/static.fp" }
+HardwareShader sprite WARTG0 { shader "Shaders/static.fp" }
+HardwareShader sprite WARTH0 { shader "Shaders/static.fp" }
+HardwareShader sprite WARTI0 { shader "Shaders/static.fp" }

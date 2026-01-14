@@ -1,0 +1,89 @@
+class Susan : Actor
+{
+	Default
+	{
+		Health 60;
+		Radius 20;
+		Height 56;
+		Speed 8;
+		Scale 0.3;
+		PainChance 0;
+		MeleeRange 44;
+		RenderStyle "Translucent";
+		Monster;
+		+NOBLOOD +DONTTHRUST +FLOORCLIP -NODROPOFF
+		Obituary "Susanned!";
+		HitObituary "Susanned!";
+		Tag "Susan.";
+	}
+	States
+	{
+	ReSpawn:
+		SUSN AAAAAAAAAA 1 A_FadeTo(1.0, 0.1, FTF_CLAMP);
+	Spawn:
+		SUSN A 1 A_Look();
+		Loop;
+		
+	See:
+		SUSN A 5
+		{
+			if(target) {
+				playerInfo targetPlayer = target.Player;
+				CVar targetFov = CVar.GetCVar("fov", targetPlayer);
+				int fovInt = targetFov.GetInt();
+				
+				if(!CheckIfInTargetLOS(fovInt + 25)) {
+					A_Chase("Melee", null);
+					
+					A_StartSound("susan/walk", 93, CHANF_NOSTOP, 1.0);
+					A_StartSound("susan/breathe", 94, CHANF_NOSTOP, 0.5, 8);
+					}
+				else {
+					vel = (0, 0, 0);
+					A_StopSound(93);
+					A_StopSound(94);
+					}
+				}
+			}
+		TNT1 A 0;
+		Loop;
+	Melee:
+		SUSN B 5 A_CustomMeleeAttack(target.Health * 4);
+		Goto See;
+	Death:
+		SUSN BCDE 8;
+		SUSN FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF 1 {
+		A_FadeTo(0.01, 0.01, FTF_CLAMP);
+		}
+		TNT1 A 0 {
+			self.Health = 60;
+			bSHOOTABLE = true;
+			A_Teleport("Idle", "SusanSpot", flags: TF_NOFOG);
+			}
+		Goto ReSpawn;
+	}
+	
+	override void Tick()
+	{
+		Super.Tick();
+		double heartRate = 1;
+		if (target) heartRate = Distance3D(target) / 128;
+		heartRate = 1.0 - clamp(heartRate, 0, 1.0);
+		heartRate = clamp(heartRate, 0, 0.7);
+//		console.Printf("%f", heartRate);
+		A_StartSound("susan/heart", 95, CHANF_NOSTOP, 0.5, 12, startTime: heartRate);
+		if(!target)
+		{
+			A_StopSound(93);
+			A_StopSound(94);
+		}
+	}
+}
+
+class SusanSpot : SpecialSpot
+{
+  Default
+  {
+  +INVISIBLE
+  }
+}

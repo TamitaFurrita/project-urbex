@@ -1,0 +1,62 @@
+class Wart : Actor
+{
+	Default
+	{
+		Health 0xfffffffe;
+		Speed 3;
+		Scale 0.3;
+		PainChance 200;
+		MeleeRange 96;
+		+FLOORCLIP +NOGRAVITY -NODROPOFF -DONTINTERPOLATE
+		Obituary "Warted!";
+		HitObituary "Warted!";
+		Tag "Wart.";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 BRIGHT A_Look();
+		Loop;
+	See:
+		TNT1 AAAAAAAAAAAAAAAA 5 BRIGHT {
+		self.Speed = 3 + (Distance2D(target) / 32);
+		A_StopSound(93);
+		VelIntercept(target);
+		A_StartSound("wart/invisible", 94, CHANF_NOSTOP, 0.3, attenuation: ATTN_STATIC);
+		if(!CheckIfTargetInLOS()) bNOCLIP = True;
+		else bNOCLIP = False;
+		}
+		
+		TNT1 A 0 A_StartSound("wart/dead", attenuation: 5, pitch: frandom(0.9, 1.1));
+		WART ABCBABCBABCBABCB 5 BRIGHT {
+		vel.x = 0;
+		vel.y = 0;
+		vel.z = 0;
+		A_StartSound("wart/visible", 93, CHANF_NOSTOP, 0.3, attenuation: 0.75);
+		if(CheckIfCloser(target, self.default.MeleeRange, false)) 
+			{
+			return ResolveState("Melee");
+			}
+		return ResolveState(null);
+		}
+		TNT1 A 0 A_StartSound("wart/dead", attenuation: 5, pitch: frandom(0.9, 1.1));
+		Loop;
+		
+	Melee:
+		WART D 5 BRIGHT {
+		A_StartSound("wart/uhoh", 95, volume: 0.5);
+		vel.x = 0;
+		vel.y = 0;
+		vel.z = 0;
+		}
+		TNT1 A 0 RadiusAttack(self, 128, 128);
+		WART EFGHI 10 BRIGHT;
+		TNT1 A 0 {
+		A_StopSound(93);
+		A_StopSound(94);
+		A_StopSound(95);
+		A_StartSound("wart/dead");
+		}
+		Stop;
+	}
+}

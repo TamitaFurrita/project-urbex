@@ -1,0 +1,11 @@
+wart/invisible			STATIC1
+wart/visible			STATIC2
+wart/uhoh				WARTNO
+wart/dead				TONK
+
+susan/walk				SUSAN1
+susan/breathe			SUSAN2
+susan/heart				SUSAN3
+
+$limit wart/invisible 1
+$limit wart/visible 1
