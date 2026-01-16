@@ -1,4 +1,4 @@
-class Wart : Actor
+class Wart : TamiActorBase
 {
 	Default
 	{
@@ -8,8 +8,7 @@ class Wart : Actor
 		PainChance 200;
 		MeleeRange 96;
 		+FLOORCLIP +NOGRAVITY -NODROPOFF -DONTINTERPOLATE
-		Obituary "Warted!";
-		HitObituary "Warted!";
+		Obituary "%o disappeared.";
 		Tag "Wart.";
 	}
 	States
