@@ -4,16 +4,16 @@ GameInfo
 	StatScreen_Single = "BunnyStatusScreen"
 	PlayerClasses = "SamDoom"
 	StatusBarClass = "CustomStatusBar"
-	DimColor = "1b 1b 38"
-	PickupColor = "cf cf fd"
+	DimColor = "00 00 00"
+	PickupColor = "ff 00 00"
 	NoMergePickupMsg = False
 	
-	MenuFontColor_Title = "Sapphire"
+	MenuFontColor_Title = "Red"
 	MenuFontColor_Label = "Black"
 	MenuFontColor_Action = "Black"
-	MenuFontColor_Highlight = "Ice"
-	MenuFontColor_Selection = "Ice"
-	MenuFontColor_Header = "Ice"
+	MenuFontColor_Highlight = "Fire"
+	MenuFontColor_Selection = "Brick"
+	MenuFontColor_Header = "Red"
 	MenuFontColor_Value = "White"
 }
 
