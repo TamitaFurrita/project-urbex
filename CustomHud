@@ -1,0 +1,531 @@
+class CustomStatusBar : BaseStatusBar
+{
+	TextureID tex;
+	
+	bool genericObjective;
+	bool customObjective;
+	
+	Font sfnt;
+	
+	String Objective;
+	String ObjectiveArray[16];
+	int ObjectiveArrayEntry;
+	
+	HUDFont noMonospaceSmallfont;
+	HUDFont mHUDFont;
+	InventoryBarState diparms;
+	
+	bool DoneLoudMusic;
+	bool LoudSeen;
+	double TextScaling;
+	
+	double LoudBlend;
+	int LoudBlendTimer;
+	int LoudBlendCounter;
+	
+	double VisBlend;
+	double SightBlend;
+	
+	double NoisyAlpha;
+	bool BeingNoisy;
+	
+	double MurderAlpha;
+	int MurderAlphaTimer;
+	bool Murdered;
+	bool MurderSeen;
+	bool NoiseSeen;
+	
+	bool Seen;
+	bool NotInSight;
+	
+	int Sass;
+	int WhatToSay;
+	
+	int countTreasures;
+	
+	const PICKUPMSG_SCROLLTIME = 15;
+	array<String> pickupMsgStrings;
+	array<double> pickupMsgAlpha;
+	double pickupMsgScrollTics;
+	
+	static const string CommonMurderer[] = {
+		"They have their heads up now.", "Oops.", "Sorry.",
+		"They for sure heard that.", 
+		"Pull a stunt like that again.",
+		"Did they hear that?", "Just sloppy.",
+		"Please, die quietly next time.", "You're all out in the open."
+	};
+	
+	static const string RareMurderer[] = {
+		"Gah, I blew it.", "Oh god, not on my face...",
+		"Last white shirt in the apocalypse...",
+		"That must have hurt. My bad.", "That must've hurt.",
+		"Oh, is that..?",
+		"Nice, juicy brains.",
+		"You goofed, big time.", "Alakazam! All gone."
+	};
+	
+	override void Init()
+	{
+		Super.Init();
+		
+		VisBlend = 1.0;
+		SightBlend = 1.0;
+		NoisyAlpha = 1.0;
+		MurderAlpha = 0.0;
+		Murdered = false;
+		Sass = 0;
+		WhatToSay = 0;
+		DoneLoudMusic = False;
+		
+		customObjective = False;
+		ObjectiveArrayEntry = 0;
+		
+		ObjectiveArray[0] = "Find the exit.";
+		ObjectiveArray[1] = "Pick up treasure.";
+		ObjectiveArray[2] = "Kill the monsters.";
+		ObjectiveArray[3] = "Find the ";
+		ObjectiveArray[4] = "Find treasure or exit.";
+		ObjectiveArray[5] = "Find keys or pick up treasure.";
+		ObjectiveArray[6] = "Find keys or exit.";
+		
+		Font fnt = "BigUpper";
+		mHUDFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), Mono_CellLeft, 1, 1);
+		diparms = InventoryBarState.Create();
+		
+		sfnt = "smallFont";
+		noMonospaceSmallfont = HUDFont.Create(smallFont);
+		
+		tex = TexMan.CheckForTexture("graphics/SCRNSIZ.lmp");
+	}
+	
+	override void Draw(int state, double TicFrac)
+	{
+		Super.Draw(state, TicFrac);
+		
+		int Dum, Dummy, ResX, ResY = Screen.GetViewWindow() / max(hud_scale, uiscale, 1.0);
+		SetSize(0, ResX, ResY);
+		
+		if(CPlayer.Health > 0 && !automapactive)
+			{			
+				{
+					TextScaling = hud_aspectscale ? 0.83334 : 1.0;
+					BeginHUD();
+					
+					if(state == HUD_FullScreen)
+					{	
+						DrawFullScreenStuff();
+						WhyDidIWriteThisInAcsFirst();
+						AlertLogic();
+						
+						if(!customObjective) DrawGenericObjectivePanel();
+						if(customObjective) DrawCustomObjectivePanel();
+						
+						DrawCustomMessage((-7, 11 * textScaling), DI_SCREEN_RIGHT_TOP|DI_TEXT_ALIGN_RIGHT, TextScaling);
+					}
+					
+					else {
+						if(state != HUD_None) screen.DrawTexture(tex, 0, 0, 0, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Fullscreen, True);
+					}
+				}
+			}
+		}
+	
+	override void Tick()
+	{
+		Super.Tick();
+		MessageTick();
+		if (LoudSeen && LoudBlend > -5.0) 
+			{
+				LoudBlendTimer++;
+				if(LoudBlendTimer >= 35)
+				{
+					LoudBlend -= 0.05;
+				}
+				
+				if(LoudBlendTimer == 70 && LoudBlendCounter < 8)
+				{
+					LoudBlendTimer = 0;
+					if(LoudBlend < 0.0) LoudBlend = 0.0;
+					LoudBlend += 1.0 / max(LoudBlendCounter, 1);
+					LoudBlendCounter++;
+				}
+			}
+		HandleMurderAlpha();
+		HandleVisibilityAlpha();
+		
+		customObjective = ACS_NamedExecuteWithResult("Get If Custom Objective");
+		
+		ObjectiveArrayEntry = ACS_NamedExecuteWithResult("Actually Get The Objective");
+		objective = ObjectiveArray[ObjectiveArrayEntry];
+	}
+	
+	void MessageTick()
+	{
+		if (pickupMsgStrings.Size() > 0)
+		{
+			// Update the alpha values of each message.
+			bool shouldclear = true;
+			for (int i = 0; i < pickupMsgAlpha.Size(); i++)
+			{
+				pickupMsgAlpha[i] = max(pickupMsgAlpha[i] - 0.025, 0.0);
+				if (pickupMsgAlpha[i] > 0)
+				{
+					// If at least a single message's alpha is
+					// above zero, do not clear them.
+					shouldclear = false;
+				}
+			}
+			// If ALL messages' alpha is zero, clear arrays:
+			if (shouldclear)
+			{
+				pickupMsgStrings.Clear();
+				pickupMsgAlpha.Clear();
+			}
+			// Otherwise update scroll timer:
+			else if (pickupMsgScrollTics > 0)
+			{
+				pickupMsgScrollTics--;
+			}
+		}
+	}
+	
+	void WhyDidIWriteThisInAcsFirst()
+	{
+		let mo = CPlayer.mo;
+		int IsThereALoudSong = Wads.FindLump(""..level.info.Mapname.."_L", ns: Wads.AnyNamespace);
+		
+		LoudSeen = mo.FindInventory("LoudSeen") != null;
+		MurderSeen = mo.FindInventory("MurderSeen") != null;
+		Seen = mo.FindInventory("Seen") != null;
+		NoiseSeen = mo.FindInventory("NoiseSeen") != null;
+		NotInSight = mo.FindInventory("NotInSight") != null;
+
+		BeingNoisy = (MurderSeen || NoiseSeen);
+
+		int totalMonsters = level.Total_Monsters;
+		int killedMonsters = level.Killed_Monsters;
+
+		vector2 EyeCoords = (0, 8 * textScaling);
+		EyeCoords.x += 0.5;
+		EyeCoords.y += 0.5;
+		int EyeFlags = DI_SCREEN_CENTER|DI_ITEM_CENTER;
+		
+		if (!LoudSeen)
+		{		
+			DrawTexture(TexMan.CheckForTexture("Eye"), (EyeCoords.x, EyeCoords.y), EyeFlags, 1.0 - SightBlend, scale:(1.0, TextScaling));	
+			DrawTexture(TexMan.CheckForTexture("Eye2"), (EyeCoords.x, EyeCoords.y), EyeFlags, SightBlend, scale:(1.0, TextScaling));
+			if(!Seen) {
+			
+				if(!BeingNoisy) DrawTexture(TexMan.CheckForTexture("Visible"), (EyeCoords.x, EyeCoords.y), EyeFlags, 1.0 - max(SightBlend, VisBlend), scale:(1.0, TextScaling));
+				else DrawTexture(TexMan.CheckForTexture("Noisy"), (EyeCoords.x, EyeCoords.y), EyeFlags, 1.0 - max(SightBlend, VisBlend), scale:(1.0, TextScaling));					
+				
+			}
+			else DrawTexture(TexMan.CheckForTexture("Spotted"), (EyeCoords.x, EyeCoords.y), EyeFlags, 1.0 - VisBlend, scale:(1.0, TextScaling));
+			}
+		
+		if (MurderSeen && !LoudSeen && !Seen)
+		{
+			HandleMurderMessage();
+		}
+		else
+		{
+			Murdered = false;
+			MurderAlpha = 0;
+		}
+		
+		if (LoudSeen)
+		{
+			string LoudMusic = ""..level.info.Mapname.."_L";
+			
+			DrawString(noMonospaceSmallfont, "Gone Loud!", (0, 24), DI_SCREEN_CENTER|DI_TEXT_ALIGN_CENTER, Font.CR_FIRE, LoudBlend, scale:(1.0, TextScaling));
+			if(!DoneLoudMusic)
+			{
+				if(IsThereALoudSong != -1) {
+					S_ChangeMusic(LoudMusic);
+	//				console.Printf("Loud Track Found, Playing");
+					}
+	//			console.Printf("WEDIDIT");
+				DoneLoudMusic = True;
+			}
+		}
+		
+		else {
+		LoudBlend = 1.0;
+		LoudBlendTimer = 0;
+		LoudBlendCounter = 0;
+		}
+	}
+
+	void HandleVisibilityAlpha()
+	{
+		let mo = CPlayer.mo;
+		
+		if (mo.bMVISBLOCKED && VisBlend < 1.0) VisBlend += 0.1;
+		if (!mo.bMVISBLOCKED && VisBlend > 0.0) VisBlend -= 0.1;
+		
+		if (NotInSight && !(Seen || BeingNoisy)) SightBlend += 0.1;
+		if (!NotInSight || (Seen || BeingNoisy)) SightBlend -= 0.1;
+		SightBlend = clamp(SightBlend, 0.0, 1.0);
+	//	console.Printf("%d", SightBlend);
+	}
+	
+	void HandleMurderAlpha()
+	{
+		if (!Murdered)
+		{
+			Sass = Random(0, 100);
+			WhatToSay = Random(0, 8);
+			Murdered = true;
+			MurderAlphaTimer = 0;
+		}
+
+		// Fade in
+		if (MurderAlpha < 1.0 && MurderAlphaTimer < 60)
+		{
+			MurderAlpha += 0.05;
+			if (MurderAlpha > 1.0) MurderAlpha = 1.0;
+		}
+		else
+		{
+			MurderAlphaTimer++;
+		}
+
+		if (MurderAlphaTimer > 70)
+		{
+			MurderAlpha -= 0.05;
+			if (MurderAlpha <= 0.0 && !MurderSeen)
+			{
+				MurderAlpha = 0.0;
+				Murdered = false; // Reset state
+				MurderAlphaTimer = 0;
+			}
+		}
+	}
+	
+	void HandleMurderMessage()
+	{
+		String text = (Sass < 95) ? CommonMurderer[WhatToSay] : RareMurderer[WhatToSay];
+		DrawString(noMonospaceSmallfont, text, (0, 24 * textScaling), DI_SCREEN_CENTER|DI_TEXT_ALIGN_CENTER, Font.CR_ICE, MurderAlpha, scale:(1.0, TextScaling));
+	}
+	
+	void AlertLogic()
+	{
+		ThinkerIterator it = ThinkerIterator.Create("Actor");
+		Actor mo;
+		let Playermo = CPlayer.mo;
+		
+		countTreasures = ACS_NamedExecuteWithResult("Count Treasures");
+		
+		while (mo = Actor(it.Next()))
+		{	
+			if (mo.bISMONSTER && !mo.bAMBUSH && mo.Health > 0 && mo.target && !Playermo.FindInventory("LoudSeen"))
+			{
+			
+			vector2 compasspos;
+
+			double angleDiff = Playermo.deltaangle(Playermo.angle, Playermo.AngleTo(mo));
+
+			double distance = max(Playermo.Distance3D(mo) * cos(angleDiff), 1.0);
+			double fovFactor = CPlayer.fov / 100;
+
+			compasspos.x = (-angleDiff * CPlayer.fov / fovFactor) / log(distance + 1.0) / (8 * fovFactor);
+			compasspos.y = ((Playermo.PitchTo(
+							mo,
+							Playermo.Height,
+							mo.Height +
+								(mo.Distance2D(Playermo) * 0.25 > 32 ? 32 :
+								 mo.Distance2D(Playermo) * 0.25)
+							) - Playermo.Pitch)
+							* 2.5 *
+							(1.0 / ((mo.Distance2D(Playermo) * 0.002 < 1) ? 1 :
+									(mo.Distance2D(Playermo) * 0.002)))
+							);
+			
+			double compassalpha = max(0.2, 1.0 - mo.Distance2D(Playermo)/1280) - (abs(Playermo.deltaangle(Playermo.angle, Playermo.AngleTo(mo)) / 45));
+			
+		//		Console.Printf("Found monster being very mad");
+				if(mo.target is "EAI_PathNode") DrawImage("STCFN063", compasspos, DI_SCREEN_CENTER|DI_ITEM_TOP, compassalpha - 0.25, translation:Font.CR_ICE, scale:(1.0, TextScaling));
+				if(mo.target.player) DrawImage("STCFN033", compasspos, DI_SCREEN_CENTER|DI_ITEM_TOP, compassalpha, scale:(1.0, TextScaling));
+			} 
+			
+			if(countTreasures + mo.CountInv("PickedUpTreasure") > 0 && (ObjectiveArrayEntry == 1 || ObjectiveArrayEntry == 4 || ObjectiveArrayEntry == 5))
+			{
+				if (mo.Player)
+				{
+					int CounterY;
+					if(customObjective) CounterY = 31 * textScaling;
+					else CounterY = 9 * TextScaling;
+					
+					if(mo.CountInv("PickedUpTreasure") < countTreasures) {
+						DrawString(noMonospaceSmallfont, String.Format("\cM%i/\cF%i", mo.CountInv("PickedUpTreasure"), countTreasures), (sfnt.StringWidth(objective) + 34, CounterY), DI_SCREEN_LEFT_TOP|DI_TEXT_ALIGN_CENTER, scale:(1.0, TextScaling));
+					}
+					
+					else if(mo.CountInv("PickedUpTreasure") == countTreasures) {
+						DrawString(noMonospaceSmallfont, String.Format("\cF%i\cM/\cF%i", mo.CountInv("PickedUpTreasure"), countTreasures), (sfnt.StringWidth(objective) + 34, CounterY), DI_SCREEN_LEFT_TOP|DI_TEXT_ALIGN_CENTER, scale:(1.0, TextScaling));
+					}
+				}
+			}
+		}
+	}
+	
+	override bool ProcessNotify(EPrintLevel printlevel, String outline)
+	{
+		if(outline && (printlevel == PRINT_LOW || printlevel == PRINT_MEDIUM || printlevel == PRINT_CHAT || PRINT_BOLD)) 
+			{
+			pickupMsgStrings.Push(outline);
+			pickupMsgAlpha.Push(2.0);
+			pickupMsgAlpha.Resize(pickupMsgStrings.Size());
+			pickupMsgScrollTics = PICKUPMSG_SCROLLTIME;
+			}
+		return true;
+	}
+	
+	void DrawCustomObjectivePanel()
+	{
+		DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (6, 22 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 1.0, scale: (sfnt.StringWidth(whatIsTheCustomObjective) + 10, 1 * textScaling), col: 0xffFF0000);
+		DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, 2 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 0.2, scale: (sfnt.StringWidth(whatIsTheCustomObjective) + 10, 20 * textScaling));
+		DrawString(noMonospaceSmallfont, whatIsTheCustomObjective, (10, 9 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, scale:(1, TextScaling));
+		
+		DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (6, 44 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 1.0, scale: (sfnt.StringWidth(objective) + 10, 1 * textScaling), col: 0xffFF0000);
+		DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, 24 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 0.2, scale: (sfnt.StringWidth(objective) + 10, 20 * textScaling));
+		DrawString(noMonospaceSmallfont, objective, (10, 31 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, scale:(1, TextScaling));
+	}
+	
+	void DrawGenericObjectivePanel()
+	{
+		DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (6, 22 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 1.0, scale: (sfnt.StringWidth(objective) + 10, 1 * textScaling), col: 0xffFF0000);
+		DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, 2 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 0.2, scale: (sfnt.StringWidth(objective) + 10, 20 * textScaling));
+		DrawString(noMonospaceSmallfont, objective, (10, 9 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, scale:(1, TextScaling));
+	}
+	
+	void DrawNumberValue(int value, double x, double y, int digits = -1, int flags = -1, double alpha = 1.0)
+	{
+		if (digits == -1) 
+		{
+			// Auto-determine digit count
+			if (value >= 100) digits = 3;
+			else if (value >= 10) digits = 2;
+			else digits = 1;
+		}
+		
+		DrawString(mHUDFont, FormatNumber(value, digits), (x, y), flags, alpha: alpha, scale:(1, TextScaling));
+	}
+	
+	void DrawFullScreenStuff ()
+	{		
+		// Draw health
+		DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (6, -2 * textScaling), DI_ITEM_LEFT_BOTTOM|DI_SCREEN_LEFT_BOTTOM, 1.0, scale: (45 * (0.01 * min(100, CPlayer.health)), 1 * textScaling), col: 0xffFF0000);
+		DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, -2 * textScaling), DI_ITEM_LEFT_BOTTOM|DI_SCREEN_LEFT_BOTTOM, 0.2, scale: (45, 26 * textScaling));
+		
+		DrawString(noMonospaceSmallfont, String.Format("\crHealth"), (28, -25 * textScaling), DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER, scale:(1, TextScaling));
+		DrawNumberValue(CPlayer.health, 28, -19 * textScaling, flags: DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER);
+		
+		// Draw armor
+		let armor = CPlayer.mo.FindInventory("BasicArmor", true);
+		if (armor != null && armor.Amount > 0)
+		{
+			DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (6, -30 * textScaling), DI_ITEM_LEFT_BOTTOM|DI_SCREEN_LEFT_BOTTOM, 1.0, scale: (45 * (0.01 * min(100, armor.Amount)), 1 * textScaling), col: 0xffFF0000);
+			DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, -30 * textScaling), DI_ITEM_LEFT_BOTTOM|DI_SCREEN_LEFT_BOTTOM, 0.2, scale: (45, 26 * textScaling));
+			
+			DrawString(noMonospaceSmallfont, String.Format("\cgArmor"), (28, -53 * textScaling), DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER, scale:(1, TextScaling));
+			DrawNumberValue(armor.Amount, 28, -47 * textScaling, flags: DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER);
+		}
+		else
+		{
+			DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, -30 * textScaling), DI_ITEM_LEFT_BOTTOM|DI_SCREEN_LEFT_BOTTOM, 0.2, scale: (45, 26 * textScaling));
+			DrawString(noMonospaceSmallfont, String.Format("\cgArmor"), (28, -53 * textScaling), DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER, alpha: 0.5, scale:(1, TextScaling));
+			DrawNumberValue(0, 28, -47 * textScaling, flags: DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER, 0.5);
+		}
+		
+		
+		// Draw ammo
+		Inventory Weapon;
+		Weapon = CPlayer.ReadyWeapon;
+		Inventory ammotype1, ammotype2;
+		[ammotype1, ammotype2] = GetCurrentAmmo();
+		int invY = -18 * textScaling;
+		
+		if (Weapon != null && ammotype1 != null)
+		{
+			DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (-6, -2 * textScaling), DI_ITEM_RIGHT_BOTTOM|DI_SCREEN_RIGHT_BOTTOM, 1, scale: (73, 1 * textScaling), col: 0xffFF0000);
+			DrawTexture(TexMan.CheckForTexture("HUDPANL"), (-6, -2 * textScaling), DI_ITEM_RIGHT_BOTTOM|DI_SCREEN_RIGHT_BOTTOM, 0.2, scale: (73, 20 * textScaling));
+			
+			DrawTexture(GetIcon(Weapon, 0), (-76, invY), DI_ITEM_LEFT_TOP|DI_SCREEN_RIGHT_BOTTOM, scale:(1, TextScaling), style: STYLE_AddShaded);
+			
+			DrawString(noMonospaceSmallfont, String.Format("\crAmmo"), (-60, -11 * textScaling), DI_SCREEN_RIGHT_BOTTOM|DI_TEXT_ALIGN_CENTER, scale:(1, TextScaling));
+			DrawNumberValue(ammotype1.Amount, -22, invY, flags: DI_SCREEN_RIGHT_BOTTOM|DI_TEXT_ALIGN_CENTER);
+		}
+		
+		if (!isInventoryBarVisible() && !Level.NoInventoryBar && CPlayer.mo.InvSel != null)
+		{
+			DrawInventoryIcon(CPlayer.mo.InvSel, (-14, invY + 17), DI_DIMDEPLETED);
+			DrawString(mHUDFont, FormatNumber(CPlayer.mo.InvSel.Amount, 3), (-30, invY), DI_TEXT_ALIGN_RIGHT);
+		}
+
+		DrawFullscreenKeys();
+		
+		if (isInventoryBarVisible())
+		{
+			DrawInventoryBar(diparms, (0, 0), 7, DI_SCREEN_CENTER_BOTTOM, HX_SHADOW);
+		}
+	}
+	
+	void DrawCustomMessage(Vector2 pos, int flags, float scale = 1.0)
+	{
+		int msgcount = pickupMsgStrings.Size();
+		if (msgcount <= 0) return;
+		
+		// Get the height of the font (we will use this for vertical
+		// spacing):
+		double stringHeight = noMonospaceSmallfont.mFont.GetHeight() * scale;
+		// If there's more than 1 message in the queue, offset each
+		// message to create an effect of them scrolling:
+		if (msgcount > 1)
+		{
+			pos.y += stringheight * (double(pickupMsgScrollTics) / PICKUPMSG_SCROLLTIME);
+		}
+		// Finally, draw all messages, starting from the newest one:
+		for (int i = msgcount - 1; i >= 0; i--)
+		{
+			DrawString(noMonospaceSmallfont, 
+				pickupMsgStrings[i],
+				pos,
+				flags: flags,
+				translation: Font.CR_Ice,
+				// Pass the alpha value from the alpha values array.
+				// Don't forget to clamp it  to 1.0 here, since it
+				// starts at 2.0:
+				alpha: min(pickupMsgAlpha[i], 1.0),
+				scale: (1, TextScaling));
+			// move up for the next message:
+			pos.y -= stringheight;
+		}
+	}
+	
+	void DrawFullscreenKeys()
+	{
+		Vector2 keypos = (-10, 17);
+		int rowc = 0;
+		double roww = 0;
+		for(let i = CPlayer.mo.Inv; i != null; i = i.Inv)
+		{
+			if (i is "Key" && i.Icon.IsValid())
+			{
+				
+				DrawTexture(i.Icon, keypos + (0, -15), DI_SCREEN_RIGHT_TOP|DI_ITEM_LEFT_TOP);
+				
+				Vector2 size = TexMan.GetScaledSize(i.Icon);
+				keypos.Y += size.Y + 2;
+				roww = max(roww, size.X);
+				if (++rowc == 3)
+				{
+					keypos.Y = 17;
+					keypos.X -= roww + 2;
+					roww = 0;
+					rowc = 0;
+				}
+			}
+		}
+	}
+}

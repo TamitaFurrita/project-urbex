@@ -1,0 +1,52 @@
+DEFAULTLISTMENU
+{
+	Selector "", 0, 0
+	Font "SMALLFONT", "Black", "Red"
+	LineSpacing 18
+}
+
+LISTMENU "MainMenu"
+{
+	Size Clean
+	Size 480, 270
+	
+	StaticPatch 269, 70, "TTLLOGO"
+	StaticPatch 25, 75, "TTLPAUS"
+	
+	Position 25,180
+	TextItem "New Game", "n", "EpisodeMenu"
+	TextItem "Load Game", "l", "LoadGameMenu"
+	TextItem "Save Game", "s", "SaveGameMenu"
+	TextItem "Options","o", "OptionsMenu"
+	TextItem "Quit Game", "q", "QuitMenu"
+}
+
+LISTMENU "QuitMenu"
+{
+	Size 320, 180
+}	
+
+LISTMENU "EpisodeMenu"
+{
+	Size Clean
+	Size 480, 270
+	
+	StaticPatch 269, 70, "JNKLOGO"
+	StaticPatch 25, 75, "JNKPAUS"
+	
+	ForceList
+	StaticText 25, 227, "Vanilla Episode Menu", "Red"
+	Position 25,245
+}
+
+LISTMENU "SkillMenu"
+{
+	Size Clean
+	Size 480, 270
+	
+	StaticPatch 269, 70, "JNKLOGO"
+	StaticPatch 25, 75, "JNKPAUS"
+	
+	ForceList
+	Position 25,245
+}

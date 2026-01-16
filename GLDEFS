@@ -7,3 +7,81 @@ HardwareShader sprite WARTF0 { shader "Shaders/static.fp" }
 HardwareShader sprite WARTG0 { shader "Shaders/static.fp" }
 HardwareShader sprite WARTH0 { shader "Shaders/static.fp" }
 HardwareShader sprite WARTI0 { shader "Shaders/static.fp" }
+
+HardwareShader PostProcess scene
+{
+	Name "postprocess"
+	Shader "Shaders/postprocess.fp" 330
+	Uniform float LowR = 1.0
+	Uniform float LowG = 1.0
+	Uniform float LowB = 1.0
+
+	Uniform float HighR = 1.0
+	Uniform float HighG = 1.0
+	Uniform float HighB = 1.0
+
+	Uniform float Desaturation = 0.0
+
+	Uniform float BlendPercent = 1.0
+}
+
+HardwareShader PostProcess scene
+{
+	Name "stealthvision"
+	Shader "Shaders/Stealth.fp" 330
+	Uniform float stealth
+}
+
+HardwareShader PostProcess scene
+{
+	Name "redthing"
+	Shader "Shaders/MultRed.fp" 330
+	Uniform float blendem
+}
+
+HardwareShader PostProcess scene
+{
+	Name "redthingdamage"
+	Shader "Shaders/DamageRed.fp" 330
+	Uniform float blendem
+}
+
+HardwareShader PostProcess scene
+{
+	Name "whiteflash"
+	Shader "Shaders/WhiteFlash.fp" 330
+	Uniform float blend
+}
+
+// Flashlight Lights
+pointlight FLASHLIGHT2_2
+{
+		color 0.15 0.16 0.17
+		size 576
+		spot 7 15
+		offset 0 50 0
+}
+
+pointlight FLASHLIGHT2
+{
+		color 0.29 0.32 0.35
+		size 512
+		spot 15 30
+		offset 0 50 0
+}
+
+pointlight FLASHLIGHT
+{
+		color 0.29 0.315 0.35
+		size 288
+		spot 7 15
+		offset 0 50 0
+}
+
+pointlight FLASHLIGHT_2
+{
+		color 0.58 0.63 0.7
+		size 256
+		spot 15 30
+		offset 0 50 0
+}

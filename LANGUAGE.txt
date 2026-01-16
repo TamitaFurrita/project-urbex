@@ -1,0 +1,10 @@
+[enu] //language code header
+
+PD_REDC = "You need a Red Cross to\nopen this door.";
+PD_REDCO = "You need a Red Cross to\nactivate this object.";
+
+PD_BLUEC = "You need a Blue Cross to\nopen this door.";
+PD_BLUECO = "You need a Blue Cross to\nactivate this object.";
+
+PD_YELLOWC = "You need a Yellow Cross to\nopen this door.";
+PD_YELLOWCO = "You need a Yellow Cross to\nactivate this object.";

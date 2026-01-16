@@ -1,2 +1,25 @@
+version "4.14"
+
+#include "CustomHud"
+#include "zscript/enhancedAI/main.txt"
+#include "zscript/enhancedAI/search.txt"
+#include "zscript/enhancedAI/path.txt"
+#include "zscript/enhancedAI/group.txt"
+
+#include "zscript/menu/menu.zs"
+#include "zscript/menu/tallyscreen.zs"
+
+#include "Core/PredictiveFire.zs"
+#include "Core/GlassEventHandler.zs"
+#include "Core/PostProcessHandler.zs"
+
+#include "Weapons/Flashlight.zs"
+
+#include "ZScript/Stealthy.zs"
+#include "ZScript/StealthScript.zs"
+#include "ZScript/Treasure.zs"
+#include "ZScript/Keys.zs"
+#include "ZScript/Player.zs"
+
 #include "Actors/Wart"
 #include "Actors/Susan"

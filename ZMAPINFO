@@ -1,0 +1,94 @@
+GameInfo 
+{
+	AddEventHandlers = "GlassHandler", "EnhancedAIHandler"
+	StatScreen_Single = "BunnyStatusScreen"
+	PlayerClasses = "SamDoom"
+	StatusBarClass = "CustomStatusBar"
+	DimColor = "1b 1b 38"
+	PickupColor = "cf cf fd"
+	NoMergePickupMsg = False
+	
+	MenuFontColor_Title = "Sapphire"
+	MenuFontColor_Label = "Black"
+	MenuFontColor_Action = "Black"
+	MenuFontColor_Highlight = "Ice"
+	MenuFontColor_Selection = "Ice"
+	MenuFontColor_Header = "Ice"
+	MenuFontColor_Value = "White"
+}
+
+ClearSkills
+
+skill baby
+{
+	AutoUseHealth
+	AmmoFactor = 2
+	DamageFactor = 0.5
+	EasyBossBrain
+	SpawnFilter = Baby
+	Name = "I'm too young to die!"
+	Key = "i"
+}
+
+skill easy
+{
+	EasyBossBrain
+	SpawnFilter = Easy
+	Name = "Hey, not too rough."
+	Key = "h"
+}
+
+skill normal
+{
+	SpawnFilter = Normal
+	Key = "h"
+	Name = "Hurt me plenty."
+	DefaultSkill
+}
+
+skill hard
+{
+	SpawnFilter = Hard
+	Name = "Ultra-Violence!"
+	Key = "u"
+}
+
+skill nightmare
+{
+	AmmoFactor = 2
+	FastMonsters
+	InstantReaction
+	DisableCheats
+	RespawnTime = 12
+	SpawnFilter = Nightmare
+	Name = "Nightmare!"
+	MustConfirm
+	Key = "n"
+}
+
+DoomEdNums
+{
+	5110 = Wart
+	5111 = Susan
+}
+
+DEFAULTMAP
+{
+	AirControl = 0.5
+	EnableShadowMap
+	LightMode = 2
+	EvenLighting
+	ResetItems
+}
+
+MAP TITLEMAP "Title Map"
+{
+	Music = "BYFOXO"
+	Sky1 = "SKY1"
+}
+
+MAP MAP01 "Boulevard"
+{
+	Music = "BYFOXO"
+	Sky1 = "SKY1"
+}

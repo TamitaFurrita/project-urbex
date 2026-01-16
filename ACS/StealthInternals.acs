@@ -1,0 +1,128 @@
+#library "StealthInternals"
+#include "zcommon.acs"
+
+str treasures[6] = {
+			"TreasureDagger", "TreasureBox", "TreasureStaff", 
+			"TreasureBook", "TreasureChalice", "TreasureSkull"
+		};
+		
+int initialTreasure;
+int requirement;
+
+script 3333 OPEN
+{
+	initialTreasure = 0;
+	
+	for (int i = 0; i < 6; i++) {
+		initialTreasure += ThingCountName(treasures[i], 0);
+	}
+}
+
+script "Randomize Patrol Path" (int patrolTID, int alttid1, int alttid2)
+{
+	switch(Random(1, 2))
+	{
+		Case 1:
+		SetThingSpecial(patrolTID, 0, alttid1, 0);
+		break;
+
+		Case 2:
+		SetThingSpecial(patrolTID, 0, alttid2, 0);
+		break;
+	}
+}
+
+script "Exit" (void)
+{
+	requirement = initialTreasure / 2;
+	SetHudSize(320, 240, TRUE);
+	
+	if(!CheckInventory("LoudSeen"))
+	{
+		if(CheckInventory("PickedUpTreasure") < requirement)
+		{
+			HudMessage(s:"\n\n\n(Find ", d:requirement - CheckInventory("PickedUpTreasure"), s:" more artifacts to leave.)"; HUDMSG_FADEINOUT, 4, CR_BLACK, 160.4, 180.0, 1.0, 1.0, 1.0);
+		}
+		
+		else
+		{
+			Exit_Normal(0);
+		}
+	}
+	
+	else if(CheckInventory("LoudSeen"))
+	{
+		if(CheckInventory("PickedUpTreasure") < initialTreasure)
+		{
+			HudMessage(s:"\n\n\n(Find all artifacts to leave.)"; HUDMSG_FADEINOUT, 4, CR_BLACK, 160.4, 180.0, 1.0, 1.0, 1.0);
+		}
+		
+		else
+		{
+			Exit_Normal(0);
+		}
+	}
+}
+
+script "Death Fade" DEATH
+{
+	Delay(35*3);
+	FadeTo(0,0,0, 1.0, 5.0);
+	Delay(35*5);
+	HudMessage(s:"You died."; HUDMSG_FADEINOUT, 68, CR_RED, 0.5, 0.5, 9999.0, 1.0, 5.0, 1);
+}
+
+script "Count Treasures" (void)
+{
+	SetResultValue(initialTreasure);
+}
+
+script "Break Light" (int LightTag)
+{
+	Thing_Deactivate(LightTag);
+	PlaySound(0, "world/electric", CHAN_AUTO, 0.25);
+	PlaySound(0, "imp/melee", CHAN_AUTO, 0.33);
+	PlaySound(0, "weapons/axecut", CHAN_AUTO, 0.25);
+}
+
+script "Break Wood" (void)
+{
+	QuakeEx(0,1,1,0,17,0,1,"",QF_SCALEUP|QF_SCALEDOWN);
+	GiveActorInventory(PlayerNumber(), "Noisy", 1);
+	Floor_LowerToLowest(0,256);
+}
+
+script "Hit Wood" (void)
+{
+	PlaySound(0,"world/hitwood", CHAN_AUTO);
+}
+
+int objectiveInt = 0;
+
+script "objint" (int thisnumber)
+{
+	objectiveInt = thisnumber;
+}
+
+script "Actually Get The Objective" (void)
+{
+	int returnValue = objectiveInt;
+	SetResultValue(returnValue);
+}
+
+bool ifCustomObjective = False;
+
+script "customobj" (void)
+{
+	ifCustomObjective = True;
+}
+
+script "disablecustomobj" (void)
+{
+	ifCustomObjective = False;
+}
+
+script "Get If Custom Objective" (void)
+{
+	SetResultValue(ifCustomObjective);
+}

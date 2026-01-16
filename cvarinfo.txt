@@ -1,0 +1,5 @@
+server bool EAI_Debug = false;
+server bool LightDebug = false;
+server float HELPMEJESUS = 1;
+
+noarchive server cheat string whatIsTheCustomObjective = "Find the exit.";
