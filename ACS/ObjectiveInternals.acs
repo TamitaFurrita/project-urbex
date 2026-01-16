@@ -1,0 +1,38 @@
+#library "ObjectiveInternals"
+#include "zcommon.acs"
+
+int objectiveInt = 0;
+
+script "objint" (int thisnumber)
+{
+	objectiveInt = thisnumber;
+}
+
+script "Actually Get The Objective" (void)
+{
+	int returnValue = objectiveInt;
+	SetResultValue(returnValue);
+}
+
+bool ifCustomObjective = False;
+
+script "Enable Custom Objective" (void)
+{
+	ifCustomObjective = True;
+}
+
+script "Disable Custom Objective" (void)
+{
+	ifCustomObjective = False;
+}
+
+script "Set Custom Objective" (int customObj)
+{
+	if(ifCustomObjective == False) ifCustomObjective = True;
+	SetCVarString("whatIsTheCustomObjective", customObj);
+}
+
+script "Get If Custom Objective" (void)
+{
+	SetResultValue(ifCustomObjective);
+}

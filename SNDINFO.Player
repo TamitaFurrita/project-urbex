@@ -1,0 +1,34 @@
+$playeralias	player	male	*death		DeathRandom
+$playersound	player	male	*xdeath		xDeath
+$playersound	player	male	*gibbed		dsslop
+$playeralias	player  male	*pain25		pain100
+$playersound	player	male	*pain50		Pain75
+$playersound	player	male	*pain75		Pain50
+$playersound	player	male	*pain100	Pain25
+$playersound	player	male	*grunt		Grunt
+$playeralias	player	male	*land		Land
+$playersound	player	male	*jump		Jump
+$playersound	player	male	*fist		dspunch
+$playersounddup	player	male	*usefail	*grunt
+
+$random pain100 { samdoom/pain100a samdoom/pain100b samdoom/pain100c }
+samdoom/pain100a	Pain100a
+samdoom/pain100b	Pain100b
+samdoom/pain100c	Pain100c
+
+$random land { samdoom/landa samdoom/landb samdoom/landc }
+samdoom/landa		fall1
+samdoom/landb		fall2
+samdoom/landc		fall3
+$volume land 0.25
+
+$random deathrandom { samdoom/deatha samdoom/deathb }
+samdoom/deatha		death
+samdoom/deathb		death2
+
+armor/regen				DSREGEN
+armor/break				DSBREAK
+$volume armor/break		0.5
+
+sounds/playerfound		DSFOUND
+$volume sounds/playerfound		0.5

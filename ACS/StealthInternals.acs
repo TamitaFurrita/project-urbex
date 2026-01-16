@@ -96,33 +96,3 @@ script "Hit Wood" (void)
 {
 	PlaySound(0,"world/hitwood", CHAN_AUTO);
 }
-
-int objectiveInt = 0;
-
-script "objint" (int thisnumber)
-{
-	objectiveInt = thisnumber;
-}
-
-script "Actually Get The Objective" (void)
-{
-	int returnValue = objectiveInt;
-	SetResultValue(returnValue);
-}
-
-bool ifCustomObjective = False;
-
-script "customobj" (void)
-{
-	ifCustomObjective = True;
-}
-
-script "disablecustomobj" (void)
-{
-	ifCustomObjective = False;
-}
-
-script "Get If Custom Objective" (void)
-{
-	SetResultValue(ifCustomObjective);
-}

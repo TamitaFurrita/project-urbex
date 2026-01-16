@@ -418,7 +418,7 @@ class CustomStatusBar : BaseStatusBar
 		DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (6, -2 * textScaling), DI_ITEM_LEFT_BOTTOM|DI_SCREEN_LEFT_BOTTOM, 1.0, scale: (45 * (0.01 * min(100, CPlayer.health)), 1 * textScaling), col: 0xffFF0000);
 		DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, -2 * textScaling), DI_ITEM_LEFT_BOTTOM|DI_SCREEN_LEFT_BOTTOM, 0.2, scale: (45, 26 * textScaling));
 		
-		DrawString(noMonospaceSmallfont, String.Format("\crHealth"), (28, -25 * textScaling), DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER, scale:(1, TextScaling));
+		DrawString(noMonospaceSmallfont, String.Format("\cgHealth"), (28, -25 * textScaling), DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER, scale:(1, TextScaling));
 		DrawNumberValue(CPlayer.health, 28, -19 * textScaling, flags: DI_SCREEN_LEFT_BOTTOM|DI_TEXT_ALIGN_CENTER);
 		
 		// Draw armor

@@ -91,4 +91,5 @@ MAP MAP01 "Boulevard"
 {
 	Music = "BYFOXO"
 	Sky1 = "SKY1"
+	EventHandlers = "OurPostProcessing"
 }
