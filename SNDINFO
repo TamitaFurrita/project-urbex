@@ -7,5 +7,8 @@ susan/walk				SUSAN1
 susan/breathe			SUSAN2
 susan/heart				SUSAN3
 
-$limit wart/invisible 1
-$limit wart/visible 1
+door/creak				CREAK
+door/jiggle				JIGGLE
+
+$limit					wart/invisible 1
+$limit					wart/visible 1
