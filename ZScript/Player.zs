@@ -32,6 +32,7 @@ class SamDoom : DoomPlayer
 		Player.StartItem "Flashlight";
 		
 		Player.WeaponSlot 1, "Flashlight";
+		+NOTELESTOMP
 	}
 	
 	States

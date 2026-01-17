@@ -1,12 +1,14 @@
 class Susan : TamiActorBase
 {
+	int hitCount;
+	
 	Default
 	{
-		Health 60;
-		Radius 20;
-		Height 56;
+		Health 0xfffffffe;
+		Radius 16;
+		Height 80;
 		Speed 8;
-		Scale 0.3;
+		Scale 0.28;
 		PainChance 0;
 		MeleeRange 44;
 		RenderStyle "Translucent";
@@ -21,16 +23,24 @@ class Susan : TamiActorBase
 	ReSpawn:
 		SUSN AAAAAAAAAA 1 A_FadeTo(1.0, 0.1, FTF_CLAMP);
 	Spawn:
-		SUSN A 1 A_Look();
+		SUSN A 1 
+		{
+		A_Look();
+		hitCount = 0;
+		}
 		Loop;
 		
 	See:
 		SUSN A 5
 		{
-			if(target) {
+			if(target && target.Player) {
 				playerInfo targetPlayer = target.Player;
 				CVar targetFov = CVar.GetCVar("fov", targetPlayer);
-				int fovInt = targetFov.GetInt();
+				
+				int fovInt;
+				
+				if(!targetFov) fovInt = 90;
+				else fovInt = targetFov.GetInt();
 				
 				if(!CheckIfInTargetLOS(fovInt + 25)) {
 					A_Chase("Melee", null);
@@ -44,7 +54,10 @@ class Susan : TamiActorBase
 					A_StopSound(94);
 					}
 				}
+			if(target && !target.Player) {
+			A_Chase("Melee", null);
 			}
+		}	
 		TNT1 A 0;
 		Loop;
 	Melee:
@@ -57,9 +70,7 @@ class Susan : TamiActorBase
 		A_FadeTo(0.01, 0.01, FTF_CLAMP);
 		}
 		TNT1 A 0 {
-			self.Health = 60;
-			bSHOOTABLE = true;
-			bSOLID = true;
+			self.Health = 0xfffffffe;
 			A_Teleport("Idle", "SusanSpot", flags: TF_NOFOG);
 			}
 		Goto ReSpawn;
@@ -79,6 +90,18 @@ class Susan : TamiActorBase
 			A_StopSound(93);
 			A_StopSound(94);
 		}
+	}
+	
+	override int TakeSpecialDamage(Actor inflictor, Actor source, int damage, Name damagetype)
+	{
+		hitCount++;
+		
+		if(hitCount == 10) {
+			hitCount = 90;
+			ResolveState("Death");
+		}
+		
+		Return 0;
 	}
 }
 

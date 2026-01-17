@@ -11,6 +11,7 @@ class TamiActorBase : Actor
 	Default
 	{
 	FriendlySeeBlocks 0;
+	+NOTELESTOMP;
 	}
 	
 	void A_Patrol(StateLabel melee = "Melee", StateLabel missile = "Missile")
