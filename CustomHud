@@ -319,36 +319,6 @@ class CustomStatusBar : BaseStatusBar
 		
 		while (mo = Actor(it.Next()))
 		{	
-			if (mo.bISMONSTER && !mo.bAMBUSH && mo.Health > 0 && mo.target && !Playermo.FindInventory("LoudSeen"))
-			{
-			
-			vector2 compasspos;
-
-			double angleDiff = Playermo.deltaangle(Playermo.angle, Playermo.AngleTo(mo));
-
-			double distance = max(Playermo.Distance3D(mo) * cos(angleDiff), 1.0);
-			double fovFactor = CPlayer.fov / 100;
-
-			compasspos.x = (-angleDiff * CPlayer.fov / fovFactor) / log(distance + 1.0) / (8 * fovFactor);
-			compasspos.y = ((Playermo.PitchTo(
-							mo,
-							Playermo.Height,
-							mo.Height +
-								(mo.Distance2D(Playermo) * 0.25 > 32 ? 32 :
-								 mo.Distance2D(Playermo) * 0.25)
-							) - Playermo.Pitch)
-							* 2.5 *
-							(1.0 / ((mo.Distance2D(Playermo) * 0.002 < 1) ? 1 :
-									(mo.Distance2D(Playermo) * 0.002)))
-							);
-			
-			double compassalpha = max(0.2, 1.0 - mo.Distance2D(Playermo)/1280) - (abs(Playermo.deltaangle(Playermo.angle, Playermo.AngleTo(mo)) / 45));
-			
-		//		Console.Printf("Found monster being very mad");
-				if(mo.target is "EAI_PathNode") DrawImage("STCFN063", compasspos, DI_SCREEN_CENTER|DI_ITEM_TOP, compassalpha - 0.25, translation:Font.CR_ICE, scale:(1.0, TextScaling));
-				if(mo.target.player) DrawImage("STCFN033", compasspos, DI_SCREEN_CENTER|DI_ITEM_TOP, compassalpha, scale:(1.0, TextScaling));
-			} 
-			
 			if(countTreasures + mo.CountInv("PickedUpTreasure") > 0 && (ObjectiveArrayEntry == 1 || ObjectiveArrayEntry == 4 || ObjectiveArrayEntry == 5))
 			{
 				if (mo.Player)
