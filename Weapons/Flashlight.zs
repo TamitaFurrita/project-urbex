@@ -42,7 +42,7 @@ Class Flashlight : Weapon
 		Loop;
 	LightLower:
 		FLIT B 0 {
-		A_PlaySound("flashlight/off");
+		A_PlaySound("wart/dead", pitch: 1.3);
 		A_RemoveLight("CloseLight");
 		A_RemoveLight("CloseLight2");
 		
@@ -59,13 +59,13 @@ Class Flashlight : Weapon
 		Loop;
 	Fire:
 		FLIT B 1 A_JumpIf(invoker.LightOn, "LightOff");
-		FLIT B 1 A_PlaySound("flashlight/on");
+		FLIT B 1 A_PlaySound("wart/dead", pitch: 1.6);
 		FLIT B 1 A_Light(3);
 		FLIT B 1 { invoker.LightOn=true; }
 		Goto LightReady;
 	LightOff:
 		FLIT B 1 {
-		A_PlaySound("flashlight/off");
+		A_PlaySound("wart/dead", pitch: 1.3);
 		A_RemoveLight("CloseLight");
 		A_RemoveLight("CloseLight2");
 		
