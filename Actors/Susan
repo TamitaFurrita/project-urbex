@@ -26,6 +26,7 @@ class Susan : TamiActorBase
 		SUSN A 1 
 		{
 		A_Look();
+	//	console.Printf("We lookin");
 		hitCount = 0;
 		}
 		Loop;
@@ -33,30 +34,33 @@ class Susan : TamiActorBase
 	See:
 		SUSN A 5
 		{
-			if(target && target.Player) {
-				playerInfo targetPlayer = target.Player;
-				CVar targetFov = CVar.GetCVar("fov", targetPlayer);
-				
-				int fovInt;
-				
-				if(!targetFov) fovInt = 90;
-				else fovInt = targetFov.GetInt();
-				
-				if(!CheckIfInTargetLOS(fovInt + 25)) {
-					A_Chase("Melee", null);
+			if(target) {
+				if(target.Player) {
+					playerInfo targetPlayer = target.Player;
+					CVar targetFov = CVar.GetCVar("fov", targetPlayer);
 					
-					A_StartSound("susan/walk", 93, CHANF_NOSTOP, 1.0);
-					A_StartSound("susan/breathe", 94, CHANF_NOSTOP, 0.5, 8);
+					int fovInt;
+					
+					if(!targetFov) fovInt = 90;
+					else fovInt = targetFov.GetInt();
+					
+					if(!CheckIfInTargetLOS(fovInt + 25)) {
+						A_Chase("Melee", null);
+						
+						A_StartSound("susan/walk", 93, CHANF_NOSTOP, 1.0);
+						A_StartSound("susan/breathe", 94, CHANF_NOSTOP, 0.5, 8);
+						}
+					else {
+						vel = (0, 0, 0);
+						A_StopSound(93);
+						A_StopSound(94);
+						}
 					}
-				else {
-					vel = (0, 0, 0);
-					A_StopSound(93);
-					A_StopSound(94);
-					}
+				if(!target.Player) {
+				A_Chase("Melee", null);
 				}
-			if(target && !target.Player) {
-			A_Chase("Melee", null);
 			}
+			if(!target) A_Chase("Melee", null);
 		}	
 		TNT1 A 0;
 		Loop;

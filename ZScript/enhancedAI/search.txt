@@ -30,7 +30,7 @@ extend class EnhancedAIScript
 		{
 			// Standard AI mode, no changes to behavior
 			case normal:
-				if(!owner.target) { seeTics = 999999; return; }
+				if(!owner.target) { return; }
 				if(path.size() > 0 && owner.target == path[0])
 				{
 					owner.A_ClearTarget();
@@ -126,6 +126,10 @@ extend class EnhancedAIScript
 				break;
 			// Reached last position or search timer dropped too low. Wander in area.
 			case searching:
+				if(EAI_Debug >= 1) console.printf(""..countdown);
+				owner.A_Look();
+				if(countdown % owner.default.Speed == 0) owner.A_Wander();
+				
 				// Another simple check to return to normal if monster gets a target.
 				if(owner.target)
 				{
@@ -135,10 +139,10 @@ extend class EnhancedAIScript
 				// Finish the search and return to normal mode.
 				if(countdown <= 0)
 				{
-					AIMode = normal;
 					owner.A_ClearTarget();
 					owner.goal = null;
 					if(EAI_Debug >= 1) { console.printf(owner.getclassname().." gave up the search"); }
+					AIMode = normal;
 				}
 				seeTics++;
 				break;

@@ -50,6 +50,6 @@ script "Get Objective State" (void)
 	objectiveState = 0;
 	if(ifCustomObjective) objectiveState++;
 	if(!ifGenericObjective) objectiveState++;
-	Print(i:objectiveState);
+//	Print(i:objectiveState);
 	SetResultValue(objectiveState);
 }
