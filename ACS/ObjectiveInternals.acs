@@ -15,6 +15,7 @@ script "Actually Get The Objective" (void)
 }
 
 bool ifCustomObjective = False;
+bool ifGenericObjective = True;
 
 script "Enable Custom Objective" (void)
 {
@@ -26,13 +27,29 @@ script "Disable Custom Objective" (void)
 	ifCustomObjective = False;
 }
 
+script "Enable Generic Objective" (void)
+{
+	ifGenericObjective = True;
+}
+
+script "Disable Generic Objective" (void)
+{
+	ifGenericObjective = False;
+}
+
 script "Set Custom Objective" (int customObj)
 {
 	if(ifCustomObjective == False) ifCustomObjective = True;
 	SetCVarString("whatIsTheCustomObjective", customObj);
 }
 
-script "Get If Custom Objective" (void)
+int objectiveState = 0;
+
+script "Get Objective State" (void)
 {
-	SetResultValue(ifCustomObjective);
+	objectiveState = 0;
+	if(ifCustomObjective) objectiveState++;
+	if(!ifGenericObjective) objectiveState++;
+	Print(i:objectiveState);
+	SetResultValue(objectiveState);
 }

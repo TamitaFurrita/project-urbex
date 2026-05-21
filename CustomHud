@@ -2,8 +2,7 @@ class CustomStatusBar : BaseStatusBar
 {
 	TextureID tex;
 	
-	bool genericObjective;
-	bool customObjective;
+	int objectiveStatus;
 	
 	Font sfnt;
 	
@@ -78,7 +77,7 @@ class CustomStatusBar : BaseStatusBar
 		WhatToSay = 0;
 		DoneLoudMusic = False;
 		
-		customObjective = False;
+		objectiveStatus = -1;
 		ObjectiveArrayEntry = 0;
 		
 		ObjectiveArray[0] = "Find the exit.";
@@ -118,10 +117,26 @@ class CustomStatusBar : BaseStatusBar
 						WhyDidIWriteThisInAcsFirst();
 						AlertLogic();
 						
-						if(!customObjective) DrawGenericObjectivePanel();
-						if(customObjective) DrawCustomObjectivePanel();
+						switch(objectiveStatus)
+						{
+							case -1:
+							break;
+							
+							case 0:
+							DrawGenericObjectivePanel();
+							break;
+							
+							case 1:
+							DrawCustomObjectivePanel();
+							break;
+							
+							case 2:
+							DrawOnlyCustomObjectivePanel();
+							break;
+						}
 						
 						DrawCustomMessage((-7, 11 * textScaling), DI_SCREEN_RIGHT_TOP|DI_TEXT_ALIGN_RIGHT, TextScaling);
+						objectiveStatus = ACS_NamedExecuteWithResult("Get Objective State");
 					}
 					
 					else {
@@ -153,8 +168,6 @@ class CustomStatusBar : BaseStatusBar
 			}
 		HandleMurderAlpha();
 		HandleVisibilityAlpha();
-		
-		customObjective = ACS_NamedExecuteWithResult("Get If Custom Objective");
 		
 		ObjectiveArrayEntry = ACS_NamedExecuteWithResult("Actually Get The Objective");
 		objective = ObjectiveArray[ObjectiveArrayEntry];
@@ -324,7 +337,7 @@ class CustomStatusBar : BaseStatusBar
 				if (mo.Player)
 				{
 					int CounterY;
-					if(customObjective) CounterY = 31 * textScaling;
+					if(objectiveStatus != 1) CounterY = 31 * textScaling;
 					else CounterY = 9 * TextScaling;
 					
 					if(mo.CountInv("PickedUpTreasure") < countTreasures) {
@@ -360,6 +373,13 @@ class CustomStatusBar : BaseStatusBar
 		DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (6, 44 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 1.0, scale: (sfnt.StringWidth(objective) + 10, 1 * textScaling), col: 0xffFF0000);
 		DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, 24 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 0.2, scale: (sfnt.StringWidth(objective) + 10, 20 * textScaling));
 		DrawString(noMonospaceSmallfont, objective, (10, 31 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, scale:(1, TextScaling));
+	}
+	
+	void DrawOnlyCustomObjectivePanel()
+	{
+		DrawTexture(TexMan.CheckForTexture("HUDCOLR"), (6, 22 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 1.0, scale: (sfnt.StringWidth(whatIsTheCustomObjective) + 10, 1 * textScaling), col: 0xffFF0000);
+		DrawTexture(TexMan.CheckForTexture("HUDPANL"), (6, 2 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, 0.2, scale: (sfnt.StringWidth(whatIsTheCustomObjective) + 10, 20 * textScaling));
+		DrawString(noMonospaceSmallfont, whatIsTheCustomObjective, (10, 9 * textScaling), DI_ITEM_LEFT_TOP|DI_SCREEN_LEFT_TOP, scale:(1, TextScaling));
 	}
 	
 	void DrawGenericObjectivePanel()
