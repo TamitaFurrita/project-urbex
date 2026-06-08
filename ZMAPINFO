@@ -70,6 +70,8 @@ DoomEdNums
 {
 	5110 = Wart
 	5111 = Susan
+	5112 = SusanSpot
+	5500 = Boxes1
 }
 
 DEFAULTMAP

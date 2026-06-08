@@ -47,10 +47,12 @@ class Susan : TamiActorBase
 					if(!CheckIfInTargetLOS(fovInt + 25)) {
 						A_Chase("Melee", null);
 						
+						self.Speed = 8 + (Distance2D(target) / 64);
 						A_StartSound("susan/walk", 93, CHANF_NOSTOP, 1.0);
 						A_StartSound("susan/breathe", 94, CHANF_NOSTOP, 0.5, 8);
 						}
 					else {
+						self.Speed = self.Default.Speed;
 						vel = (0, 0, 0);
 						A_StopSound(93);
 						A_StopSound(94);

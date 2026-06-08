@@ -1,0 +1,17 @@
+class Boxes1 : Actor
+{
+	Default
+	{
+		Radius 32;
+		Height 48;
+		+SOLID
+		Tag "Cardboard Boxes";
+		//$Category "Obstacles"
+	}
+	States
+	{
+	Spawn:
+		BOXE S 1;
+		Loop;
+	}
+}
